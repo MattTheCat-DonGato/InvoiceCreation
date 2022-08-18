@@ -875,7 +875,10 @@ namespace InvoiceCreation
                     Console.WriteLine($"Customer ID Number: {customers[i].IdNumber}");
                     Console.WriteLine($"Customer First Name: {customers[i].FirstName}");
                     Console.WriteLine($"Customer Last Name: {customers[i].LastName}");
+                    Console.WriteLine($"Customer City: {customers[i].City}");
+                    Console.WriteLine($"Customer State: {customers[i].State}");
                     Console.WriteLine($"Customer Address: {customers[i].Address}");
+                    Console.WriteLine($"Customer Zip Code: {customers[i].Zip}");
                     Console.WriteLine($"Customer PhoneNumber: {customers[i].PhoneNumber}");
                     while (!doneDelete)
                     {
