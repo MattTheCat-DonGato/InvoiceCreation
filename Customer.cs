@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-
+using System.IO;
 /*
 * Author: Matthew Rodriguez
 * Date Creation: June 20, 2022
-* Date Modified: August 17, 2022
+* Date Modified: August 20, 2022
 */
-
 namespace InvoiceCreation
 {
+    [Serializable]
     class Customer
     {
         private List<Customer> customers = new List<Customer>(); // list of customers that can be added, modified, viewed, or deleted based on user input
@@ -66,13 +66,13 @@ namespace InvoiceCreation
             FirstName = "Matthew";
             LastName = "Rodriguez";
             City = "San Benito";
-            State = "Texas";
+            State = "TX";
             Address = "208 Washington Avenue";
             Zip = "78586";
             PhoneNumber = "9564563350";
         }
 
-        // Constructor with five parameters with an int ID_num parameter and four string parameters: firstName, lastName, address, phoneNumber
+        // Constructor with seven parameters with an int ID_num parameter and four string parameters: firstName, lastName, city, state, address, zip, phoneNumber
         public Customer(int ID_num, string firstName, string lastName, string city , string state, string address, string zip, string phoneNumber) 
         {
             IdNumber = ID_num;
@@ -187,11 +187,11 @@ namespace InvoiceCreation
                 state = Console.ReadLine();
                 isValidState = CheckState(state);
             }
-            if (state.Length == 2)
+            if (state.Length == 2) // if the user input for state is exactly 2 characters, uppercase them
             {
                 state = state.ToUpper();
             }
-            if (state.Length > 2)
+            if (state.Length > 2) // if the user input is a full state name, even if its entered badly, pass it to the SetStateToAbbrName() function to process and set it to abbreviated format.
             {
                 state = SetStateToAbbrName(state);
             }
@@ -466,7 +466,7 @@ namespace InvoiceCreation
          * Returns: string state - the abbreviated state name to be inserted into the state parameter
          */
         public string SetStateToAbbrName(string state)
-        {
+        { 
             // List of States with Full Names and Abbreviated USPS Names
             string[,] statesWithAbs = new string[50, 2] { {"Alabama","AL"} , { "Alaska", "AK" } , { "Arizona", "AZ" } , { "Arkansas", "AR" } , { "California", "CA" } ,
                 { "Colorado", "CO" } , { "Connecticut", "CT" } , { "Delaware", "DE" } , { "Florida", "FL" } ,{"Georgia" , "GA"} , {"Hawaii" , "HI"} , {"Idaho" , "ID"} ,
@@ -476,6 +476,16 @@ namespace InvoiceCreation
                 {"New York" , "NY"} , {"North Carolina" , "NC"} , {"North Dakota" , "ND"} , {"Ohio" , "OH"} , {" Oklahoma" , "OK"} , {"Orgeon" , "OR"} , {"Pennsylvania" , "PA"} ,
                 {"Rhode Island" , "RI"} , {"South Carolina" , "SC"} , {"South Dakota" , "SD"} , {"Tennesee" , "TN"} , {"Texas" , "TX"}, {"Utah" , "UT"} ,
                 {"Vermont" , "VT"} , {"Virginia" , "VA"} , {" Washington" , "WA"} , {"West Virginia" , "WV"} , {"Wisconsin" , "WI"} , {"Wyoming" , "WY"} };
+
+            if (state.Contains(' ')) // if the state has a space in it...
+            {
+                string[] words = state.Split(' '); // split the input into 2 (this is for bad inputs like: NeW HAMPshIrE, NoRTh dAKoTA, etc.)
+                words[0] = words[0].Substring(0, 1).ToUpper() + words[0].Substring(1).ToLower(); // title case the first word
+                words[1] = words[1].Substring(0, 1).ToUpper() + words[1].Substring(1).ToLower(); // title case the second word
+                state = words[0] + " " + words[1]; // contcatenate the two words with the space in between.
+            }
+            else
+                state = state.Substring(0, 1).ToUpper() + state.Substring(1).ToLower(); // title case the single word
 
             for (int i = 0; i < statesWithAbs.Length / 2; i++)
             {
@@ -507,7 +517,7 @@ namespace InvoiceCreation
             while (!done)
             {
                 input = Console.ReadLine();
-                input.ToLower();
+                input = input.ToLower();
                 if(input == "cancel" || input == "back" || input == "done")
                     done = true;
                 else
@@ -556,7 +566,7 @@ namespace InvoiceCreation
                     {
                         Console.WriteLine("Is this the record you would like to modify? (Yes / No)");
                         input = Console.ReadLine();
-                        input.ToLower();
+                        input = input.ToLower();
                         if (input == "yes" || input == "y")
                         {
                             bool recordComplete = false;
@@ -564,7 +574,7 @@ namespace InvoiceCreation
                             {
                                 Console.WriteLine("How would you like to update this record? (All, Some, Cancel)");
                                 input = Console.ReadLine();
-                                input.ToLower();
+                                input = input.ToLower();
                                 if (input == "all")
                                 {
                                     string firstName, lastName, city, state, address, zip, phonenumber;
@@ -659,7 +669,7 @@ namespace InvoiceCreation
                                         Console.WriteLine("Which part of the record do you want to change? (firstname, lastname, city, state, address, zip, phonenumber)\n" +
                                             "If you need to check the record again, type check. Type done to return to the record select menu.");
                                         input = Console.ReadLine();
-                                        input.ToLower();
+                                        input = input.ToLower();
                                         if (input == "firstname")
                                         {
                                             Console.WriteLine("Enter Customer First Name:");
@@ -756,9 +766,8 @@ namespace InvoiceCreation
                                                 Console.WriteLine("The phone number entered is not valid. The phone number must be a total of 10 digits with no letters, spaces or special characters. Please input a phone number.");
                                                 phonenumber = Console.ReadLine(); 
                                                 isValidNumber = CheckPhoneNumber(phonenumber);
-                                                if (isValidNumber)
-                                                    customers[i].PhoneNumber = phonenumber;
                                             }
+                                            customers[i].PhoneNumber = phonenumber;
                                         }
                                         else if (input == "check")
                                         {
@@ -829,7 +838,7 @@ namespace InvoiceCreation
             while (!done)
             {
                 input = Console.ReadLine();
-                input.ToLower();
+                input = input.ToLower();
                 if (input == "cancel" || input == "back")
                     done = true;
                 else
@@ -884,12 +893,12 @@ namespace InvoiceCreation
                     {
                         Console.WriteLine("Are you sure you want to delete this customer? (Yes / No)");
                         input = Console.ReadLine();
-                        input.ToLower();
+                        input = input.ToLower();
                         if (input == "yes" || input == "y") // Ask a second time.
                         {
                             Console.WriteLine("ARE YOU SURE? Once deleted it's gone forever. (Yes / No)");
                             input = Console.ReadLine();
-                            input.ToLower();
+                            input = input.ToLower();
                             if (input == "yes" || input == "y") // Okay then...
                             {
                                 customers.RemoveAt(i); // remove the customer object from the list at index i
@@ -932,5 +941,132 @@ namespace InvoiceCreation
                 Console.WriteLine("Record could not be found. Please enter a different ID number.");
             }
         }
-    }
+
+        public void SaveCustomerListToFile()
+        {
+            string input; // input line
+            string original_FileName = ""; // string for the file name
+            bool doneSave = false;
+            while (!doneSave) // loop block statement to continue executing when a file hasn't been saved yet...
+            {
+                Console.WriteLine("Please enter the file name to save the current customer records to.");
+                original_FileName = Console.ReadLine();
+                if (original_FileName.EndsWith(".dat") || original_FileName.EndsWith(".txt")) // Check if the file name ends with .dat or .txt extension type
+                {
+                    if (File.Exists(@original_FileName)) // Check if the file exists...
+                    {
+                        Console.WriteLine($"The file {original_FileName} already exists. Do you want to overwrite this file? (Yes / No)"); // Ask if the file entered wants to be overwritten
+                        input = Console.ReadLine();  // read input
+                        input = input.ToLower();    // lowercase the input
+                        if (input == "yes" || input == "y") // if yes, then overwrite the file
+                        {
+                            try
+                            {
+                                Console.WriteLine($"Overwriting {original_FileName}...");
+                                FileStream file = new FileStream(original_FileName, FileMode.Create, FileAccess.Write); // Open a new file to create and write to
+                                StreamWriter sw = new StreamWriter(file);   // Create a stream writer for the file
+                                sw.WriteLine($"************ {original_FileName} Created:" + System.DateTime.Now + "***********");
+                                foreach (Customer c in customers)  // for each customer object c in the list
+                                {
+                                    sw.WriteLine($"{c.IdNumber}|{c.FirstName}|{c.LastName}|{c.City}|{c.State}|{c.Address}|{c.Zip}|{c.PhoneNumber}"); //write all data within each object per line seperated by the pipe symbol '|'.
+                                }
+                                sw.WriteLine("************End-of-File************");
+                                sw.Flush();
+                                sw.Dispose();
+                                sw.Close();
+                                Console.WriteLine("File has been saved. Check the file within the directory of the program.");
+                                doneSave = true;  // set to true to go to main menu
+                                Console.WriteLine("Returning to Main Menu."); // output message
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("File could not be saved..." + e.Message);
+                            }
+                        }
+                        else if (input == "no") // if no, ask user if they want to save the list of customers under a new file name.
+                        {
+                            bool redo = true;
+                            while(redo) // loop to ask if they want to save under new file name, loop will continue until yes or no is entered
+                            {
+                                Console.WriteLine("Do you want to enter a different file name?");
+                                input = Console.ReadLine();
+                                input = input.ToLower();
+                                if (input == "yes" || input == "y") // if yes then redo the section for the file name input
+                                {
+                                    redo = false; // get out of the redo loop
+                                }
+                                else if (input == "no" || input == "n") // if no, then return to the main menu
+                                {
+                                    Console.WriteLine("Returning to Main Menu.\n");
+                                    redo = false; // get out of redo loop
+                                    doneSave = true; // get out of file save to return to main menu
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Please enter yes or no if you want to enter a different file name.");
+                                }
+                            }
+                        }
+                    }
+                    else // if the file doesn't exist...
+                    {
+                        Console.WriteLine($"Now creating: {original_FileName}");
+                        try
+                        {
+                            FileStream file = new FileStream(original_FileName, FileMode.Create, FileAccess.Write); // Open a new file to create and write to
+                            StreamWriter sw = new StreamWriter(file);   // Create a stream writer for the file
+                            sw.WriteLine($"************ {original_FileName} Created:" + System.DateTime.Now + "***********");
+                            foreach (Customer c in customers)
+                            {
+                                sw.WriteLine($"{c.IdNumber}|{c.FirstName}|{c.LastName}|{c.City}|{c.State}|{c.Address}|{c.Zip}|{c.PhoneNumber}"); //write all data within each object per line seperated by the pipe symbol '|'.
+                            }
+                            sw.WriteLine("************End-of-File************");
+                            sw.Flush();
+                            sw.Dispose();
+                            sw.Close();
+                            Console.WriteLine("File has been saved. Check the file within the directory of the program.\n");
+                            doneSave = true;
+                            Console.WriteLine("Returning to Main Menu.");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("File could not be saved..." + e.Message);
+                        }
+                    }
+                }
+                else // the user entered file doesn't end with the .dat, .txt. or .bin
+                {
+                    bool flag = false; // flag for invalid inputs
+                    Console.WriteLine($"The file name entered: {original_FileName} does not contain the .txt or .dat extension. Would you like to enter a different file name? (Yes / No)");
+                    while (!flag)
+                    {               
+                        input = Console.ReadLine();
+                        input = input.ToLower();
+                        if (input == "yes" || input == "y")
+                        {
+                            flag = true;
+                        }
+                        else if (input == "no" || input == "n")
+                        {
+                            Console.WriteLine("Returning to Main Menu.");
+                            doneSave = true;
+                            flag = true;
+                        }
+                        else
+                            Console.WriteLine("Invalid input. Would you like to enter a different file name? (Yes / No)");
+                    }
+                }
+            }
+        }
+
+        public void LoadCustomerListfromFile(string fileName)
+        {
+            // open file and read all lines from the file entered.
+            // check each line to see of they contain the | symbol
+            // seperate the data into the respective attributes for each customer object
+            // add the customer object to the list
+            // continue until all lines have processed
+            // output message that file has been read and records have been stored in memory
+        }
+    }  
 }
