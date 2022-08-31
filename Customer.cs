@@ -4,7 +4,7 @@ using System.IO;
 /*
 * Author: Matthew Rodriguez
 * Date Creation: June 20, 2022
-* Date Modified: August 20, 2022
+* Date Modified: August 30, 2022
 */
 namespace InvoiceCreation
 {
