@@ -4,7 +4,7 @@ using System.IO;
 /*
 * Author: Matthew Rodriguez
 * Date Creation: June 20, 2022
-* Date Modified: August 30, 2022
+* Date Modified: September 7, 2022
 */
 namespace InvoiceCreation
 {
@@ -12,7 +12,7 @@ namespace InvoiceCreation
     class Customer
     {
         private List<Customer> customers = new List<Customer>(); // list of customers that can be added, modified, viewed, or deleted based on user input
-        public int nextID = 0; // count for the next id number to be assigned to the new added customer
+        public int nextID = 0; // count for the next unique id number to be assigned to the new added customer
 
         public int IdNumber // Customer ID Property
         {
@@ -942,6 +942,13 @@ namespace InvoiceCreation
             }
         }
 
+        public void DeleteAllCustomerData()
+        {
+            Console.WriteLine("Deleting all customer data...");     // Output a message to the user notifying the in memory customer data will be deleted
+            customers.Clear();                                      // empty all the customer objects in the list
+            nextID = 0;                                             // reset the ID number count (customers in memory) to 0
+        }
+
         public void SaveCustomerListToFile()
         {
             string input; // input line
@@ -975,8 +982,7 @@ namespace InvoiceCreation
                                 sw.Dispose();
                                 sw.Close();
                                 Console.WriteLine("File has been saved. Check the file within the directory of the program.");
-                                doneSave = true;  // set to true to go to main menu
-                                Console.WriteLine("Returning to Main Menu."); // output message
+                                doneSave = true;  // set to true to get out of the file save loop
                             }
                             catch (Exception e)
                             {
@@ -997,9 +1003,8 @@ namespace InvoiceCreation
                                 }
                                 else if (input == "no" || input == "n") // if no, then return to the main menu
                                 {
-                                    Console.WriteLine("Returning to Main Menu.\n");
                                     redo = false; // get out of redo loop
-                                    doneSave = true; // get out of file save to return to main menu
+                                    doneSave = true; // get out of file save loop
                                 }
                                 else
                                 {
@@ -1026,7 +1031,6 @@ namespace InvoiceCreation
                             sw.Close();
                             Console.WriteLine("File has been saved. Check the file within the directory of the program.\n");
                             doneSave = true;
-                            Console.WriteLine("Returning to Main Menu.");
                         }
                         catch (Exception e)
                         {
@@ -1061,12 +1065,42 @@ namespace InvoiceCreation
 
         public void LoadCustomerListfromFile(string fileName)
         {
-            // open file and read all lines from the file entered.
-            // check each line to see of they contain the | symbol
-            // seperate the data into the respective attributes for each customer object
-            // add the customer object to the list
-            // continue until all lines have processed
-            // output message that file has been read and records have been stored in memory
+            string[] linesFromText = System.IO.File.ReadAllLines(fileName); // open the file and read all lines
+            bool allRead = true; // flag if all the lines have been read without any issues
+            Console.WriteLine($"nextID value: {nextID}"); // output the value of the nextID variable
+            for (int i = 0; i < linesFromText.Length; i++)  // check each line to see of they contain the | symbol
+            {
+                if(linesFromText[i].Contains('|')) // if the line does contain a pipe symbol
+                {
+                    string[] data = linesFromText[i].Split('|'); // split the data using the pipe '|' symbols as the seperator
+                    int idNumber;  // data for int id number
+                    string firstName, lastName, city, state, address, zipCode, phoneNumber; // data for string 
+                    bool isParsable = int.TryParse(data[0], out idNumber); // try to parse the id number
+                    if (isParsable) // if the id is parseable...
+                    {
+                        // parse all data into their perspective attributes
+                        firstName = data[1];
+                        lastName = data[2];
+                        city = data[3];
+                        state = data[4];
+                        address = data[5];
+                        zipCode = data[6];
+                        phoneNumber = data[7];
+                        var loadCustomer = new Customer(idNumber, firstName, lastName, city, state, address, zipCode, phoneNumber); // load into a new customer object
+                        customers.Add(loadCustomer); // add the customer to the list
+                        nextID++; // increment to match size of the list for the next unique ID for each customer loaded.
+                        Console.WriteLine($"nextID value: {nextID}"); // output the value of the nextID variable
+                        // continue until all lines have processed
+                    }
+                    else
+                        allRead = false;
+                }
+            }
+            if (!allRead)
+            {
+                Console.WriteLine("An error occurred when reading one of the lines. " +
+                    "Please check the file for any out-of-place data that may interfere with loading the file.");
+            }
         }
     }  
 }
